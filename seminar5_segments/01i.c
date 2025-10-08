@@ -9,37 +9,62 @@ struct book {
 };
 typedef struct book Book;
 
-void print_book(struct book b)
+void print_book(Book* pb)
 {
     printf("Book info:\n");
-    printf("Title: %s\nPages: %d\nPrice: %g\n\n", b.title, b.pages, b.price);
+    printf("Title: %s\nPages: %d\nPrice: %g\n\n", pb->title, pb->pages, pb->price);
+}
+
+
+struct library
+{
+    Book* books;
+    int number_of_books;
+};
+typedef struct library Library;
+
+void library_create(Library* pl, int number_of_books)
+{
+    pl->number_of_books = number_of_books;
+    pl->books = (Book*)malloc(number_of_books * sizeof(Book));
+}
+
+void library_set(Library l, int i, char* title, int pages, float price)
+{
+    l.books[i].title = (char*)malloc((strlen(title) + 1) * sizeof(char));
+    strcpy(l.books[i].title, title);
+    l.books[i].pages = pages;
+    l.books[i].price = price;
+}
+
+Book* library_get(Library l, int i)
+{
+    return (l.books + i);
+}
+
+void library_print(Library l)
+{
+    for(size_t i = 0; i < l.number_of_books; ++i)
+        print_book(library_get(l, i));
+}
+
+void library_destroy(Library* pl)
+{
+    for(size_t i; i < pl->number_of_books; ++i)
+        free((pl->books)[i].title);
+    free(pl->books);
+    pl->books = NULL;
+    pl->number_of_books = 0;
 }
 
 int main()
 {
-    Book* p = (Book*)malloc(3 * sizeof(Book));
-    int n;
-    n = strlen("Don Quixot");
-    p[0].title = (char*)malloc((n + 1) * sizeof(char));
-    strcpy(p[0].title, "Don Quixot");
-    p[0].pages = 1000;
-    p[0].price = 750.0;
-    n = strlen("Oblomov");
-    p[1].title = (char*)malloc((n + 1) * sizeof(char));
-    strcpy(p[1].title, "Oblomov");
-    p[1].pages = 450;
-    p[1].price = 250.0;
-    n = strlen("The Odyssey");
-    p[2].title = (char*)malloc((n + 1) * sizeof(char));
-    strcpy(p[2].title, "The Odyssey");
-    p[2].pages = 500;
-    p[2].price = 500.0;
-
-    for(size_t i = 0; i < 3; ++i)
-    {
-        print_book(p[i]);
-        free(p[i].title);
-    }
-
-    free(p);
+    Library a;
+    library_create(&a, 3);
+    library_set(a, 0, "Don Quixote", 1000, 750.0);
+    library_set(a, 1, "Oblomov", 400, 250.0);
+    library_set(a, 2, "The Odyssey", 500, 500.0);
+    library_print(a);
+    print_book(library_get(a, 1));
+    library_destroy(&a);
 }
